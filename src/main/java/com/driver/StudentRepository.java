@@ -10,65 +10,89 @@ import java.util.Map;
 @Repository
 public class StudentRepository {
 
-    Map<String,Student> studentDb = new HashMap<>();
-    Map<String,Teacher> teacherDb = new HashMap<>();
-    Map<String, String> studentTeacherPairMap = new HashMap<>();
-    Map<String, List<String>> teacherStudentMap = new HashMap<>();
-    public void addStudent(Student student) {
-        studentDb.put(student.getName(),student);
+    Map<String,Student> studentDb;
+    Map<String,Teacher> teacherDb;
+    Map<String, String> studentTeacherPairMap;
+    Map<String, List<String>> teacherStudentMap;
+
+    public StudentRepository() {
+        this.studentDb = new HashMap<>();
+        this.teacherDb = new HashMap<>();
+        this.studentTeacherPairMap = new HashMap<>();
+        this.teacherStudentMap = new HashMap<>();
     }
 
-    public void addTeacher(Teacher teacher) {
-        teacherDb.put(teacher.getName(),teacher);
+    public Map<String, Student> getStudentDb() {
+        return studentDb;
     }
 
-    public void addStudentTeacherPair(String student, String teacher) {
-        //adding into studentTeacherPairMap
-        studentTeacherPairMap.put(student,teacher);
-        //adding into teacherStudentMap
-        List<String> studentList = teacherStudentMap.getOrDefault(teacher,new ArrayList<>());
-        studentList.add(student);
-        teacherStudentMap.put(teacher,studentList);
-        teacherDb.get(teacher).setAge(teacherDb.get(teacher).getAge() + 1);
+    public Map<String, Teacher> getTeacherDb() {
+        return teacherDb;
     }
 
-
-    public Student getStudentByName(String name) {
-        return studentDb.get(name);
+    public Map<String, String> getStudentTeacherPairMap() {
+        return studentTeacherPairMap;
     }
 
-    public Teacher getTeacherByName(String name) {
-        return teacherDb.get(name);
+    public Map<String, List<String>> getTeacherStudentMap() {
+        return teacherStudentMap;
     }
 
-    public List<String> getStudentsByTeacherName(String teacher) {
-        return teacherStudentMap.get(teacher);
+    public String addStudent(Student student) {
+        if(!getStudentDb().containsKey(student.getName())){
+            getStudentDb().put(student.getName(),student);
+            return "New student added successfully";
+        }else{
+            return "New student not added";
+        }
     }
 
-    public List<String> getAllStudents() {
-        List<String> studentList = new ArrayList<>();
-        for(String student : studentDb.keySet()){
+    public String addTeacher(Teacher teacher) {
+        if (!getTeacherDb().containsKey(teacher.getName())){
+            getTeacherDb().put(teacher.getName(),teacher);
+            return "New Student added successfully";
+        }else{
+            return "New teacher not added";
+        }
+    }
+
+    public String addStudentTeacherPair(String student, String teacher) {
+        if(getStudentDb().containsKey(student) && getTeacherDb().containsKey(teacher)){
+            List<String> studentList = getTeacherStudentMap().getOrDefault(teacher,new ArrayList<>());
             studentList.add(student);
+            getTeacherStudentMap().put(teacher,studentList);
+
+            if(!getStudentTeacherPairMap().containsKey(student)){
+                getStudentTeacherPairMap().put(student,teacher);
+            }
+
+            getTeacherDb().get(teacher).setNumberOfStudents(getTeacherDb().get(teacher).getNumberOfStudents()+1);
+            return "New Student Teacher pair added successfully";
+        }else{
+            return "Pair Not Added";
         }
-        return studentList;
     }
 
-    public void deleteTeacherByName(String teacher) {
-        if (teacherDb.containsKey(teacher)) {
-            teacherDb.remove(teacher);
+    public String deleteTeacherByName(String teacher) {
+        if(getTeacherDb() == null || getTeacherStudentMap() == null || !getTeacherDb().containsKey(teacher)){
+            return teacher+"not Found";
         }
+        teacherDb.remove(teacher);
         for(String student : teacherStudentMap.get(teacher)){
-            if(studentTeacherPairMap.containsKey(student)){
-                studentTeacherPairMap.remove(student);
-            }
+            studentTeacherPairMap.remove(student);
         }
         teacherStudentMap.remove(teacher);
+        return "remove successfully";
     }
 
-    public void deleteAllTeachers() {
-        teacherDb.clear();
-        studentTeacherPairMap.clear();
-        teacherStudentMap.clear();
+    public String deleteAllTeachers() {
+        if(teacherDb.isEmpty()) {
+            return "Teachers not found";
+        }
+        getTeacherDb().clear();
+        getStudentTeacherPairMap().clear();
+        getTeacherStudentMap().clear();
+        return "All teachers deleted successfully";
     }
 
 
