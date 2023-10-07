@@ -9,8 +9,10 @@ import java.util.Map;
 
 @Service
 public class StudentService {
-    @Autowired
-    StudentRepository studentRepository;
+//    @Autowired
+//    StudentRepository studentRepository;
+
+    StudentRepository studentRepository = new StudentRepository();
 
     Map<String,Student> studentDb = studentRepository.getStudentDb();
     Map<String,Teacher> teacherDb = studentRepository.getTeacherDb();
